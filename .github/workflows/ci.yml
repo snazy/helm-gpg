@@ -56,7 +56,13 @@ jobs:
       - name: Create Helm package
         run: |
           cd helm
+
+          # 
           export TAR_OPTIONS="--wildcards"
+          
+          #
+          export GPG_TTY=$(tty)
+
           helm package polaris
           helm gpg sign polaris-1.2.0-incubating-SNAPSHOT.tgz
 
