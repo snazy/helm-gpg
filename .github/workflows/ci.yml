@@ -76,9 +76,17 @@ jobs:
 
   helm-package-sign:
     runs-on: ubuntu-latest
+    env:
+      KEY_ID: 'root@polaris.apache.org'
+      SECKEY_FILE: ./seckey.gpg
+      ASCII_ARMORED_FILE: ./seckey.gpg.base64
+      SECKEY_PASSPHRASE_FILE: ./seckey.passphrase
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: VERY SECRET SAUCE
+        run: echo "eoifjowejfoijewiofjewiofjoijewiof" > $SECKEY_PASSPHRASE_FILE
 
       - name: Dump things
         run: find ~/.gnupg || true
@@ -91,8 +99,8 @@ jobs:
                              echo "Subkey-Length: 4096"; \
                              echo "Expire-Date: 0"; \
                              echo "Name-Real: Root Superuser"; \
-                             echo "Name-Email: root@polaris.apache.org"; \
-                             echo "Passphrase: eoifjowejfoijewiofjewiofjoijewiof"; )
+                             echo "Name-Email: $KEY_ID"; \
+                             echo "Passphrase: $(cat $SECKEY_PASSPHRASE_FILE)"; )
 
       - name: Dump things
         run: find ~/.gnupg
@@ -115,9 +123,14 @@ jobs:
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
           
-          # gpg --export-secret-key 'root@polaris.apache.org' > ~/.gnupg/secring.gpg
-          # gpg --export-secret-keys > ~/.gnupg/secring.gpg
-          gpg --output ~/.gnupg/secring.gpg --export-secret-keys --pinentry-mode=loopback --yes --passphrase "eoifjowejfoijewiofjewiofjoijewiof"
+          # gpg --export-secret-key 'root@polaris.apache.org' > $SECKEY_FILE
+          # gpg --export-secret-keys > $SECKEY_FILE
+          gpg --output $SECKEY_FILE \
+            --export-secret-keys \
+            --pinentry-mode=loopback \
+            --yes \
+            --passphrase "$(cat $SECKEY_PASSPHRASE_FILE)" \
+            $KEY_ID
 
       - name: Dump things
         run: find ~/.gnupg
@@ -130,14 +143,20 @@ jobs:
       - name: Create Helm package
         run: |
           cd helm
-          echo "eoifjowejfoijewiofjewiofjoijewiof" > very-secret-password-file.txt
+          
+          cat $ASCII_ARMORED_FILE | base64 -d > $SECKEY_FILE
+
           helm package \
             --sign \
-            --key 'root@polaris.apache.org' \
-            --keyring ~/.gnupg/secring.gpg \
-            --passphrase-file very-secret-password-file.txt \
+            --key $KEY_ID \
+            --keyring $SECKEY_FILE \
+            --passphrase-file $SECKEY_PASSPHRASE_FILE \
             polaris
-#            --password eoifjowejfoijewiofjewiofjoijewiof \
+
+      - name: Dump things
+        run: |
+          cd helm
+          cat polaris-1.2.0-incubating-SNAPSHOT.tgz.prov
 
       - name: Dump things
         run: ls -al helm
