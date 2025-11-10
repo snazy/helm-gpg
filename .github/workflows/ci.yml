@@ -91,9 +91,9 @@ jobs:
       - name: list secret
         run: gpg --list-secret-keys
 
-      - name: This needed?
-        run: |
-          gpg --export > ~/.gnupg/pubring.gpg
+#      - name: This needed?
+#        run: |
+#          gpg --export > ~/.gnupg/pubring.gpg
 
       - name: This as well?
         run: |
@@ -110,7 +110,7 @@ jobs:
           helm package \
             --sign \
             --key 'root@polaris.apache.org' \
-            --keyring ~/secring.gpg \
+            --password eoifjowejfoijewiofjewiofjoijewiof \
             polaris
 
       - name: Dump things
