@@ -77,20 +77,14 @@ jobs:
   helm-package-sign:
     runs-on: ubuntu-latest
     env:
-      KEY_ID: 'root@polaris.apache.org'
+      KEY_ID:
       SECKEY_FILE: ./seckey.gpg
-      ASCII_ARMORED_FILE: ./seckey.gpg.base64
-      SECKEY_PASSPHRASE_FILE: ./seckey.passphrase
+      PASSPHRASE: eoifjowejfoijewiofjewiofjoijewiof
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: VERY SECRET SAUCE
-        working-directory: helm
-        run: echo "eoifjowejfoijewiofjewiofjoijewiof" > $SECKEY_PASSPHRASE_FILE
-
       - name: Create dummy GPG key
-        working-directory: helm
         run: |
           gpg --full-gen-key --batch <(echo "Key-Type: 1"; \
                              echo "Key-Length: 4096"; \
@@ -98,27 +92,29 @@ jobs:
                              echo "Subkey-Length: 4096"; \
                              echo "Expire-Date: 0"; \
                              echo "Name-Real: Root Superuser"; \
-                             echo "Name-Email: $KEY_ID"; \
-                             echo "Passphrase: $(cat $SECKEY_PASSPHRASE_FILE)"; )
+                             echo "Name-Email: root@polaris.apache.org"; \
+                             echo "Passphrase: $PASSPHRASE)"; )
 
       - name: Export secret key, base64-encoded
-        working-directory: helm
         run: |
+          mkdir boo
+          cd boo
+          
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
 
-          # gpg --export-secret-key 'root@polaris.apache.org' > $SECKEY_FILE
-          # gpg --export-secret-keys > $SECKEY_FILE
-          gpg --output $SECKEY_FILE \
+          gpg --output export-secring.gpg \
             --export-secret-keys \
             --pinentry-mode=loopback \
             --yes \
-            --passphrase "$(cat $SECKEY_PASSPHRASE_FILE)" \
-            $KEY_ID
-          
-          base64 -w0 $SECKEY_FILE > $ASCII_ARMORED_FILE
-          
-          rm $SECKEY_FILE
+            --passphrase "$PASSPHRASE" \
+            'root@polaris.apache.org'
+
+          ASCII_ARMORED="$(base64 -w0 export-secring.gpg)"
+
+          rm export-secring.gpg
+
+          echo "SECRET_KEY_BASE64=$ASCII_ARMORED >> $GITHUB_ENV
 
       - name: Set up Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
@@ -129,7 +125,8 @@ jobs:
         working-directory: helm
         run: |
           # Ascii-armored -> helm-package-sign keyring file
-          cat $ASCII_ARMORED_FILE | base64 -d > $SECKEY_FILE
+          echo "$SECRET_KEY_BASE64" | base64 -d > $SECKEY_FILE
+          echo "$PASSPHRASE" > $SECKEY_PASSPHRASE_FILE
 
           helm package \
             --sign \
