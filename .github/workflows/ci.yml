@@ -86,12 +86,13 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: VERY SECRET SAUCE
-        run: echo "eoifjowejfoijewiofjewiofjoijewiof" > $SECKEY_PASSPHRASE_FILE
+        run: echo "eoifjowejfoijewiofjewiofjoijewiof" > helm/$SECKEY_PASSPHRASE_FILE
 
       - name: Dump things
         run: find ~/.gnupg || true
 
       - name: Create dummy GPG key
+        working-directory: helm
         run: |
           gpg --full-gen-key --batch <(echo "Key-Type: 1"; \
                              echo "Key-Length: 4096"; \
@@ -112,13 +113,13 @@ jobs:
         run: gpg --list-secret-keys
 
       - name: This needed?
-        run: |
-          gpg --export > ~/.gnupg/pubring.gpg
+        run: gpg --export > ~/.gnupg/pubring.gpg
 
       - name: Dump things
         run: find ~/.gnupg
 
       - name: This as well?
+        working-directory: helm
         run: |
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
@@ -141,9 +142,8 @@ jobs:
           version: 'latest'
 
       - name: Create Helm package
+        working-directory: helm
         run: |
-          cd helm
-          
           cat $ASCII_ARMORED_FILE | base64 -d > $SECKEY_FILE
 
           helm package \
@@ -154,12 +154,13 @@ jobs:
             polaris
 
       - name: Dump things
-        run: |
-          cd helm
-          cat polaris-1.2.0-incubating-SNAPSHOT.tgz.prov
+        working-directory: helm
+        run: cat polaris-1.2.0-incubating-SNAPSHOT.tgz.prov
 
       - name: Dump things
-        run: ls -al helm
+        working-directory: helm
+        run: ls -al .
 
       - name: Dump tar
-        run: tar tvfz helm/polaris-1.2.0-incubating-SNAPSHOT.tgz
+        working-directory: helm
+        run: tar tvfz polaris-1.2.0-incubating-SNAPSHOT.tgz
