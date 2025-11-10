@@ -70,6 +70,11 @@ jobs:
         working-directory: helm
         run: |
           # Ascii-armored -> helm-package-sign keyring file
+          SECKEY_FILE=./secring.gpg
+
+          touch $SECKEY_FILE
+          chmod 600 $SECKEY_FILE
+
           echo "$SECRET_KEY_BASE64" | base64 -d > $SECKEY_FILE
           echo "$PASSPHRASE" > $SECKEY_PASSPHRASE_FILE
 
