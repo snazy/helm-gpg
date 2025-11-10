@@ -56,6 +56,7 @@ jobs:
       - name: Create Helm package
         run: |
           cd helm
+          export TAR_OPTIONS="--wildcards"
           helm package polaris
           helm gpg sign polaris-1.2.0-incubating-SNAPSHOT.tgz
 
@@ -96,7 +97,7 @@ jobs:
 
       - name: This as well?
         run: |
-          gpg --export-secret-keys >~/.gnupg/secring.gpg
+          gpg --export-secret-key 'root@polaris.apache.org' >~/.gnupg/secring.gpg
 
       - name: Set up Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
