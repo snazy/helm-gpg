@@ -97,6 +97,7 @@ jobs:
         run: |
           mkdir boo
           cd boo
+          chmod 700 .
           
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
