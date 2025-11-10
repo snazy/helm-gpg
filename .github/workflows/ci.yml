@@ -84,6 +84,12 @@ jobs:
                              echo "Name-Email: root@polaris.apache.org"; \
                              echo "Passphrase: eoifjowejfoijewiofjewiofjoijewiof"; )
 
+      - name: list
+        run: gpg --list-keys
+
+      - name: list secret
+        run: gpg --list-secret-keys
+
       - name: This needed?
         run: |
           gpg --export > ~/.gnupg/pubring.gpg
