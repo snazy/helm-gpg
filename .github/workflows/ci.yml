@@ -77,8 +77,6 @@ jobs:
   helm-package-sign:
     runs-on: ubuntu-latest
     env:
-      KEY_ID:
-      SECKEY_FILE: ./seckey.gpg
       PASSPHRASE: eoifjowejfoijewiofjewiofjoijewiof
     steps:
       - name: Checkout
@@ -103,7 +101,8 @@ jobs:
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
 
-          gpg --output export-secring.gpg \
+          gpg \
+            --output export-secring.gpg \
             --export-secret-keys \
             --pinentry-mode=loopback \
             --yes \
