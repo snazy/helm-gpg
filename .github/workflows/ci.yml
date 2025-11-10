@@ -86,10 +86,8 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: VERY SECRET SAUCE
-        run: echo "eoifjowejfoijewiofjewiofjoijewiof" > helm/$SECKEY_PASSPHRASE_FILE
-
-      - name: Dump things
-        run: find ~/.gnupg || true
+        working-directory: helm
+        run: echo "eoifjowejfoijewiofjewiofjoijewiof" > $SECKEY_PASSPHRASE_FILE
 
       - name: Create dummy GPG key
         working-directory: helm
@@ -108,7 +106,7 @@ jobs:
         run: |
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
-          
+
           # gpg --export-secret-key 'root@polaris.apache.org' > $SECKEY_FILE
           # gpg --export-secret-keys > $SECKEY_FILE
           gpg --output $SECKEY_FILE \
@@ -135,10 +133,10 @@ jobs:
 
           helm package \
             --sign \
-            --key $KEY_ID \
             --keyring $SECKEY_FILE \
             --passphrase-file $SECKEY_PASSPHRASE_FILE \
             polaris
+#            --key $KEY_ID \
 
       - name: Dump things
         working-directory: helm
