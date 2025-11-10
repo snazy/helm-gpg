@@ -137,7 +137,6 @@ jobs:
             --keyring $SECKEY_FILE \
             --passphrase-file $SECKEY_PASSPHRASE_FILE \
             polaris
-#            --key $KEY_ID \
 
       - name: Dump things
         working-directory: helm
