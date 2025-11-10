@@ -130,12 +130,14 @@ jobs:
       - name: Create Helm package
         run: |
           cd helm
+          echo "eoifjowejfoijewiofjewiofjoijewiof" > very-secret-password-file.txt
           helm package \
             --sign \
             --key 'root@polaris.apache.org' \
             --keyring ~/.gnupg/secring.gpg \
-            --password eoifjowejfoijewiofjewiofjoijewiof \
+            --passphrase-file very-secret-password-file.txt \
             polaris
+#            --password eoifjowejfoijewiofjewiofjoijewiof \
 
       - name: Dump things
         run: ls -al helm
