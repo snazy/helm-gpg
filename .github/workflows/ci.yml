@@ -116,7 +116,7 @@ jobs:
           export GPG_TTY=$(tty)
           
           # gpg --export-secret-key 'root@polaris.apache.org' > ~/.gnupg/secring.gpg
-          gpg --export-secret-keys > ~/.gnupg/secring.gpg
+          gpg --export-secret-keys > ~/.gnupg/secring.gpg || true
 
       - name: Dump things
         run: find ~/.gnupg
