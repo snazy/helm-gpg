@@ -47,6 +47,7 @@ jobs:
         run: |
           mkdir boo
           cd boo
+          trap "rm -rf boo" EXIT
 
           gpg \
             --output export-secring.gpg \
@@ -59,22 +60,21 @@ jobs:
           # Export secret key, base64-encoded
           echo "SECRET_KEY_BASE64=$(base64 -w0 export-secring.gpg)" >> $GITHUB_ENV
 
-          rm export-secring.gpg
-
       - name: Set up Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           version: 'latest'
 
-      - name: Create Helm package
+      - name: Create and sign Helm package
         working-directory: helm
         run: |
-          # Ascii-armored -> helm-package-sign keyring file
-          SECKEY_FILE=./secring.gpg
-          SECKEY_PASSPHRASE_FILE=./secring.gpg.passphrase
+          mkdir .secrets
+          chmod 700 .secrets
+          trap "rm -rf .secrets" EXIT
 
-          touch $SECKEY_FILE $SECKEY_PASSPHRASE_FILE
-          chmod 600 $SECKEY_FILE $SECKEY_PASSPHRASE_FILE
+          # Ascii-armored -> helm-package-sign keyring file
+          SECKEY_FILE=.secrets/secring.gpg
+          SECKEY_PASSPHRASE_FILE=.secrets/secring.gpg.passphrase
 
           echo "$SECRET_KEY_BASE64" | base64 -d > $SECKEY_FILE
           echo "$PASSPHRASE" > $SECKEY_PASSPHRASE_FILE
