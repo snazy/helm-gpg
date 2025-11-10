@@ -97,7 +97,7 @@ jobs:
 
       - name: This as well?
         run: |
-          gpg --export-secret-key 'root@polaris.apache.org' >~/.gnupg/secring.gpg
+          gpg --export-secret-key 'root@polaris.apache.org' > ~/secring.gpg
 
       - name: Set up Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
@@ -107,7 +107,11 @@ jobs:
       - name: Create Helm package
         run: |
           cd helm
-          helm package --sign polaris --key 'root@polaris.apache.org'
+          helm package \
+            --sign \
+            --key 'root@polaris.apache.org' \
+            --keyring ~/secring.gpg \
+            polaris
 
       - name: Dump things
         run: |
