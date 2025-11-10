@@ -117,7 +117,7 @@ jobs:
           
           # gpg --export-secret-key 'root@polaris.apache.org' > ~/.gnupg/secring.gpg
           # gpg --export-secret-keys > ~/.gnupg/secring.gpg
-          gpg --output ~/.gnupg/secring.gpg --export-secret-keys
+          gpg --output ~/.gnupg/secring.gpg --export-secret-keys --pinentry-mode=loopback --yes --passphrase "eoifjowejfoijewiofjewiofjoijewiof"
 
       - name: Dump things
         run: find ~/.gnupg
