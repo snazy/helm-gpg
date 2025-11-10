@@ -133,9 +133,8 @@ jobs:
             --sign \
             --key 'root@polaris.apache.org' \
             --keyring ~/.gnupg/secring.gpg \
+            --password eoifjowejfoijewiofjewiofjoijewiof \
             polaris
-
-#           --password eoifjowejfoijewiofjewiofjoijewiof \
 
       - name: Dump things
         run: ls -al helm
