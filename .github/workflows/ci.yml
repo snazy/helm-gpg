@@ -115,7 +115,8 @@ jobs:
           # https://github.com/keybase/keybase-issues/issues/2798
           export GPG_TTY=$(tty)
           
-          gpg --export-secret-key 'root@polaris.apache.org' > ~/.gnupg/secring.gpg
+          # gpg --export-secret-key 'root@polaris.apache.org' > ~/.gnupg/secring.gpg
+          gpg --export-secret-keys > ~/.gnupg/secring.gpg
 
       - name: Dump things
         run: find ~/.gnupg
